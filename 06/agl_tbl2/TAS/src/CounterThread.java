@@ -16,6 +16,7 @@ public class CounterThread extends Thread {
 
     public void stopThread() {
         mRun = false;
+        this.interrupt();
     }
 
     public long counter() {
@@ -30,8 +31,12 @@ public class CounterThread extends Thread {
         while (mRun || (mLimit != 0 && mCounter < mLimit)) {
             int index = mRand.nextInt(mCounters.length);
             mCounters[index].lock.lock();
-            mCounters[index].increment();
-            ++mCounter;
+            // check again, because the thread could be sleeping due to a
+            // backoff and was interrupted, so it must finish
+            if (mRun || (mLimit != 0 && mCounter < mLimit)) {
+                mCounters[index].increment();
+                ++mCounter;
+            }
             mCounters[index].lock.unlock();
         }
         System.out.println("Exited thread " + this);

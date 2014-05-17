@@ -38,7 +38,8 @@ public class CounterLock implements Lock {
             try {
                 Thread.sleep(mWait);
             } catch (InterruptedException e) {
-                e.printStackTrace();
+                System.out.println("Sleeping thread " + Thread.currentThread() + " was interrupted");
+                return;
             }
         }
     }
