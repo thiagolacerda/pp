@@ -8,15 +8,11 @@ public class CounterLock implements Lock {
     private final AtomicBoolean mState = new AtomicBoolean(false);
     private final long mMaxMillisecondsWait = 65536;
     private long mWait = 1;
-    private final BackOff mBackoff;
+    private final TAS.LockType mType;
 
-    public enum BackOff {
-        NoBackoff, Exponential, Additive
-    }
-
-    public CounterLock(BackOff backoff) {
-        System.out.println("New CounterLock, backoff " + backoff);
-        mBackoff = backoff;
+    public CounterLock(TAS.LockType type) {
+        System.out.println("New CounterLock, backoff " + type);
+        mType = type;
     }
 
     @Override
@@ -27,12 +23,12 @@ public class CounterLock implements Lock {
             if (!mState.getAndSet(true))
                 return;
 
-            if (mBackoff == BackOff.NoBackoff)
+            if (mType == TAS.LockType.NoBackoffCounterLock)
                 continue;
 
             long wait;
             if (mWait < mMaxMillisecondsWait) {
-                if (mBackoff == BackOff.Exponential)
+                if (mType == TAS.LockType.ExponentialBackoffCounterLock)
                     wait = mWait << 1;
                 else
                     wait = mWait + 10;

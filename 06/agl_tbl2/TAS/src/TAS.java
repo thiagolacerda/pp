@@ -1,6 +1,7 @@
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 
 public class TAS {
 
@@ -12,10 +13,14 @@ public class TAS {
             thread.stopThread();
     }
 
+    public enum LockType {
+        NoBackoffCounterLock, QueueLock, ExponentialBackoffCounterLock, AdditiveBackoffCounterLock, ReentrantLock
+    }
+
     public static void main(String[] args) {
         if (args.length < 4) {
             System.out
-                    .println("Error: run as follows: TAS <number_of_threads> <number_of_counters> <count_limit_per_thread> <time_in_ms> [q, e, a]");
+                    .println("Error: run as follows: TAS <number_of_threads> <number_of_counters> <time_in_ms> <count_limit_per_thread> [q, e, a, r]");
             System.exit(1);
         }
 
@@ -29,28 +34,33 @@ public class TAS {
             System.exit(2);
         }
 
-        boolean queue = false;
-        CounterLock.BackOff backoff = CounterLock.BackOff.NoBackoff;
+        LockType lockType = TAS.LockType.NoBackoffCounterLock;
 
-        if (args.length > 4)
-            queue = args[4].equals("q");
-
-        if (args.length > 4)
-            backoff = args[4].equals("e") ? CounterLock.BackOff.Exponential
-                    : (args[4].equals("a") ? CounterLock.BackOff.Additive : CounterLock.BackOff.NoBackoff);
+        if (args.length > 4) {
+            if (args[4].equals("q"))
+                lockType = TAS.LockType.QueueLock;
+            else if (args[4].equals("e"))
+                lockType = TAS.LockType.ExponentialBackoffCounterLock;
+            else if (args[4].equals("a"))
+                lockType = TAS.LockType.AdditiveBackoffCounterLock;
+            else if (args[4].equals("r"))
+                lockType = TAS.LockType.ReentrantLock;
+        }
 
         Counter[] counters = new Counter[numberOfCounters];
         TAS.threads = new CounterThread[numberOfThreads];
 
-        String lockType = queue ? "queue" : "normal";
         System.out.println("Will start with " + numberOfCounters + " counters and " + numberOfThreads
-                + " threads, with " + lockType + " lock. Backoff type: " + backoff);
+                + " threads, with " + lockType + " lock.");
 
         Lock lock;
-        if (queue)
+        if (lockType == TAS.LockType.QueueLock)
             lock = new QueueLock();
-        else
-            lock = new CounterLock(backoff);
+        else if (lockType == TAS.LockType.ReentrantLock)
+            lock = new ReentrantLock();
+        else {
+            lock = new CounterLock(lockType);
+        }
 
         for (int i = 0; i < numberOfCounters; ++i)
             counters[i] = new Counter(i, lock);
@@ -61,18 +71,17 @@ public class TAS {
         for (CounterThread thread : threads)
             thread.start();
 
+        System.out.println("Threads started");
         if (countLimit == 0) {
             Timer timer = new Timer();
-            System.out.println("Threads started");
             timer.schedule(new TimerTask() {
                 @Override
                 public void run() {
                     TAS.stopAll();
                 }
             }, time);
+            System.out.println("Timer scheduled");
         }
-
-        System.out.println("Timer scheduled");
 
         for (CounterThread thread : threads) {
             try {
