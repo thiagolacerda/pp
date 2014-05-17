@@ -1,7 +1,5 @@
 import java.util.Timer;
 import java.util.TimerTask;
-import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReentrantLock;
 
 public class TAS {
 
@@ -53,17 +51,9 @@ public class TAS {
         System.out.println("Will start with " + numberOfCounters + " counters and " + numberOfThreads
                 + " threads, with " + lockType + " lock.");
 
-        Lock lock;
-        if (lockType == TAS.LockType.QueueLock)
-            lock = new QueueLock();
-        else if (lockType == TAS.LockType.ReentrantLock)
-            lock = new ReentrantLock();
-        else {
-            lock = new CounterLock(lockType);
-        }
 
         for (int i = 0; i < numberOfCounters; ++i)
-            counters[i] = new Counter(i, lock);
+            counters[i] = new Counter(i, lockType);
 
         for (int i = 0; i < numberOfThreads; ++i)
             TAS.threads[i] = new CounterThread(counters, countLimit);
