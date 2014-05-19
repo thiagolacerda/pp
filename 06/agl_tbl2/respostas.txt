@@ -1,0 +1,57 @@
+QUESTÃO 3
+=========
+
+foo()
+join()
+bar()
+
+Primeira implementção da função join:
+
+--
+1. TTASLock.lock();
+2. counter++;
+3. TTASLock.unlock();
+4. 
+5. while(counter != n);
+--
+
+Segunda implementação da função join:
+
+--
+Se thread ID 0:
+b[0] = 1;
+
+Se thread ID 0 < i < n - 1:
+while (b[i - 1] != 1);
+b[i] = 1
+while (b[i + 1] != 2);
+
+Se thread ID n -1:
+while (n - 2 != 1);
+b[n - 1] = 2
+--
+
+*** Esse algoritmo está certo? Suponha que as threads chamam join() por ordem de
+ID.
+
+Considerações sobre as implemetações:
+
+Pelo fato de usar um TTAS lock, a primeira implementação apresenta as mesmas características "negativas" do TTAS, como por exemplo, quando o unlock() é
+chamado, todas as threads chamam o lock() ao mesmo tempo, causando um exceso de
+tráfego no barramento. Além disso, quando a variável counter é atualizada, TODAS
+as threads que estão na linha 5 são "obrigadas" a atualizar a cache do
+processador.
+
+A sengunda implementação usa uma abordagem parecida com ALocks apresentada no
+livro texto. Portanto, ela apresenta as mesmas vantagens que ALock apresenta em
+relação a TTAS lock, como por exemplo, cache-coherence traffic.
+
+Portanto, em cenários de alta carga, espera-se que a sengunda implementação
+tenha melhor performance. Em cenários de baixa carga, as duas implementações tem
+praticamente o mesmo desempenho.
+
+QUESTÃO 3
+=========
+
+Não há deadlock no exemplos das questões 1 e 2, pois não há dependência circular
+de locks.
