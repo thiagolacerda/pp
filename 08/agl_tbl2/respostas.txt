@@ -1,0 +1,76 @@
+Questão 101
+-----------
+
+O mecanismo de fine-grained synchronization requer que os locks do nó
+predecessor e do nó corrente sejam adquiridos nessa ordem. Portanto,
+este mecanismo apresenta "locking coupling" o que pode ocasionar deadlocks.
+
+Para garantir que não haverá deadlock, o mecanismo exige que todos os métodos
+adquiram os locks (pred e curr) sempre na mesma ordem.
+
+Questão 102
+-----------
+
+The fine-grained add() method is linearizable since it has a linearization
+point. In case of a successful execution of add() (in other words, the element
+to be added is not already in the list), the linearization point is when the
+node with next higher key is locked.
+
+Questão 103
+-----------
+
+Optimistic and lazy locking algorithms follow the same locking protocol as
+fine-grained, thus they also have lock coupling.
+
+These algorithms follows the same approach from fine-grained to avoid deadlock:
+all methods acquire locks in the same order (predecessor and current), starting
+at the head and following next references toward the tail.
+
+Questão 105
+-----------
+
+public boolean contains(T item) {
+	int key = item.hashCode();
+	head.lock();
+	Node pred = head;
+
+	try {
+		Node curr = pred.next;
+		curr.lock();
+		try {
+			while (curr.key < key) {
+				pred.unlock();
+				pred = curr;
+				curr = curr.next;
+				curr.lock();
+			}
+
+			if (curr.key == key) {
+				return false;
+			}
+
+		} finally {
+			curr.unlock();
+		}
+	} finally {
+		pred.unlock();
+	}
+}
+
+Questão 106
+-----------
+
+Yes, as long as the locking order in remove() and contains() methods are
+changed as well. The important thing to avoid deadlock in optimistic
+synchronization approach is all methods acquire locks in the same order.
+
+Questão 108
+-----------
+
+Since the list is traversed from head to tail, there is no way to access the
+current node without have accessed the predecessor node. Additionally, the
+locking order in add() is predecessor and then the current node.
+
+As long as the predecessor's lock is held, no other thread is supposed to
+access the current node. Therefore, acquiring the current's lock is not
+really mandatory.
