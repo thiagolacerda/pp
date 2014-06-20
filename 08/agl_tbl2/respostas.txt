@@ -30,31 +30,31 @@ Questão 105
 -----------
 
 public boolean contains(T item) {
-	int key = item.hashCode();
-	head.lock();
-	Node pred = head;
+    int key = item.hashCode();
+    head.lock();
+    Node pred = head;
 
-	try {
-		Node curr = pred.next;
-		curr.lock();
-		try {
-			while (curr.key < key) {
-				pred.unlock();
-				pred = curr;
-				curr = curr.next;
-				curr.lock();
-			}
+    try {
+        Node curr = pred.next;
+        curr.lock();
+        try {
+            while (curr.key < key) {
+                pred.unlock();
+                pred = curr;
+                curr = curr.next;
+                curr.lock();
+            }
 
-			if (curr.key == key) {
-				return false;
-			}
+            if (curr.key == key) {
+                return false;
+            }
 
-		} finally {
-			curr.unlock();
-		}
-	} finally {
-		pred.unlock();
-	}
+        } finally {
+            curr.unlock();
+        }
+    } finally {
+        pred.unlock();
+    }
 }
 
 Questão 106
