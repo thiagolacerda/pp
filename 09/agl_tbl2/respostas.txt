@@ -5,6 +5,10 @@ onde cada thread possui sua própria cópia de variáveis globais.
 Usando tail e head como volatile, seria o suficiente.
 
 121.
+    1. Código na pasta 121-1
+    2. A grande dificuldade é lidar com os índices do array e com a atualização dos alementos nos índices desejados.
+       Por exemplo: Garantir que o tail será atualizado corretamente, concorrentemente com outras threads rodando enq,
+       se e somente se, esse slot no array poder ser atualizado.
 
 122.
 Sim, considere o seguinte cenário:
