@@ -1,0 +1,20 @@
+120.
+Sim, uma barreira de memória é necessária para evitar que a thread de enqueue enxergue um valor desatualizado de head ou
+que a thread de dequeue veja um valor desatualizado de tail. Isso pode acontecer por causa do modelo de memória de java,
+onde cada thread possui sua própria cópia de variáveis globais.
+Usando tail e head como volatile, seria o suficiente.
+
+121.
+
+122.
+Sim, considere o seguinte cenário:
+
+Duas threads, A e B, rodando deq concorrentemente numa fila de com um único elemento, no momento que a thread A passa a
+linha 15 e verifica que a fila não está vazia, ela é escalonada.
+Thread B continua sua execução e retira o único elemento presente na fila. Quando Thread A volta, a fila está vazia e
+ela tentará executar o deq mesmo assi.
+
+123.
+
+124.
+
