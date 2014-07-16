@@ -31,4 +31,8 @@ As variáveis de controle mFeeding e mEating fazem o controle para que nenhuma t
 enquanto está dando de comer a alguém.
 
 124.
+    1. Não, pois o head pode ser alterado na linha 39, efetivando a remoção (dequeue) do elemento e nesse ponto o método
+    toma efeito, que afetará outras threads.
 
+    2. Não, o ponto de linearização será quando o tail.next for atualizado para o novo nó que está sendo inserido,
+    fazendo assim que todas as threads vejam a mesma fila nessa hora (com o novo elemento).
