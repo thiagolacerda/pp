@@ -19,6 +19,16 @@ Thread B continua sua execução e retira o único elemento presente na fila. Qu
 ela tentará executar o deq mesmo assi.
 
 123.
+Código na pasta 123
+
+Cada thread só pode alimentar a thread com o índice logo maior que o seu (ou a de índice 0, caso a thread seja a
+última). Para ser alimentada, a thread alimentadora precisará adquirir o lock da alimentada e só poderá tentar fazer
+isso caso não esteja comendo.
+A thread alimentadora só poderá alimentar caso a thread a ser alimentada não esteja alimentando ninguém.
+Sempre que uma thread acabar de alimentar outra, ela repousará por um tempo (600ms) o que dará tempo dela também ser
+alimentada.
+As variáveis de controle mFeeding e mEating fazem o controle para que nenhuma thread fique sem comer, ou coma
+enquanto está dando de comer a alguém.
 
 124.
 
